@@ -1,0 +1,5 @@
+# Archivos que Claude Code crea en el proyecto
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+.mcp.json
