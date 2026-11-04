@@ -173,8 +173,8 @@
     function Read-ServerUrl {
         Write-Host ''
         Write-Host 'El agente no tiene servidor GLPI configurado.' -ForegroundColor Cyan
-        Write-Host '  Ejemplo:        https://glpi.ejemplo.com/front/inventory.php'
-        Write-Host '  En subcarpeta:  https://ejemplo.com/glpi/front/inventory.php'
+        Write-Host '  Ejemplo:        https://glpi.example.com'
+        Write-Host '  En subcarpeta:  https://example.com/glpi'
         while ($true) {
             $value = (Read-Host 'URL del servidor GLPI').Trim()
             if (-not $value) { throw 'La URL del servidor esta vacia.' }
@@ -299,13 +299,17 @@
         $clientId = (Read-Host 'Client ID').Trim()
         if ([string]::IsNullOrWhiteSpace($clientId)) { throw 'El Client ID esta vacio.' }
 
-        $secure = Read-Host 'Client secret' -AsSecureString
+        $secure = Read-Host 'Client secret (pega con clic derecho, no con Ctrl+V)' -AsSecureString
         try {
             $plain = [System.Net.NetworkCredential]::new('', $secure).Password
         } finally {
             $secure.Dispose()
         }
         if ([string]::IsNullOrWhiteSpace($plain)) { throw 'El secreto esta vacio.' }
+        # En este campo oculto, Ctrl+V deja un solo caracter en lugar del secreto completo.
+        if ($plain.Length -lt 8 -or $plain -match '[\x00-\x1F\x7F]') {
+            throw 'El secreto no se pego completo. Pegalo con clic derecho, no con Ctrl+V. No se escribio nada.'
+        }
         # Desde 1.20 el agente interpreta la coma como separador de valores.
         if ($clientId.Contains(',') -or $plain.Contains(',')) {
             throw 'El Client ID y el secreto no pueden contener comas.'
